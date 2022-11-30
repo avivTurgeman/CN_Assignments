@@ -125,7 +125,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
         print(f"Conection established with {client_addr}")
         while True:
             
-            data = client_socket.recv(1024)
+            data = client_socket.recv(api.BUFFER_SIZE)
             if not data:
                 break
             try:
