@@ -89,7 +89,7 @@ def server(host: str, port: int) -> None:
 
         # Prepare the server socket
         server_socket.bind(('',9999))
-        server_socket.listen(1) #check if more then 1
+        server_socket.listen(1) 
 
         threads = []
         print(f"Listening on {host}:{port}")
