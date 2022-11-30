@@ -118,7 +118,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
         while True:
 
             # Receive data from the client
-            data = client_socket.recv(8192).decode()
+            data = client_socket.recv(1024)
             
             if not data:
                 break
