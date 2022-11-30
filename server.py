@@ -125,7 +125,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
         print(f"Conection established with {client_addr}")
         while True:
             
-            data = # * Fill in start (3) # * Fill in end (3)
+            data = client_socket.recv(8192).decode()
             if not data:
                 break
             try:
@@ -144,8 +144,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
                 print(
                     f"{client_prefix} Sending response of length {len(response)} bytes")
 
-                # * Fill in start (4)
-                # * Fill in end (4)
+                client_socket.send(bytes(response.encode()))
 
             except Exception as e:
                 print(f"Unexpected server error: {e}")

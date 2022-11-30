@@ -84,8 +84,8 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
         proxy_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         # Prepare the proxy socket
-        # * Fill in start (1)
-        # * Fill in end (1)
+        proxy_socket.bind('',9998)
+        proxy_socket.listen(1)
 
         threads = []
         print(f"Listening on {proxy_address[0]}:{proxy_address[1]}")
@@ -93,8 +93,7 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
         while True:
             try:
                 # Establish connection with client.
-                
-                client_socket, client_address = # * Fill in start (2) # * Fill in end (2)
+                client_socket, client_address = proxy_socket.accept()
 
                 # Create a new thread to handle the client request
                 thread = threading.Thread(target=client_handler, args=(
@@ -117,9 +116,9 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
     with client_socket:  # closes the socket when the block is exited
         print(f"{client_prefix} Connected established")
         while True:
+
             # Receive data from the client
-            
-            data = # * Fill in start (3) # * Fill in end (3)
+            data = client_socket.recv(8192).decode()
             
             if not data:
                 break
@@ -153,8 +152,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
                     f"{client_prefix} Sending response of length {len(response)} bytes")
 
                 # Send the response back to the client
-                # * Fill in start (4)
-                # * Fill in end (4)
+                client_socket.send(bytes(response.encode()))
                 
             except Exception as e:
                 print(f"Unexpected server error: {e}")
