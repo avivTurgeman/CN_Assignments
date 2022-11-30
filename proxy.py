@@ -84,7 +84,7 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
         proxy_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         # Prepare the proxy socket
-        proxy_socket.bind('',9998)
+        proxy_socket.bind(('',9998))
         proxy_socket.listen(1)
 
         threads = []
@@ -152,7 +152,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
                     f"{client_prefix} Sending response of length {len(response)} bytes")
 
                 # Send the response back to the client
-                client_socket.send(bytes(response.encode()))
+                client_socket.send(bytes(response))
                 
             except Exception as e:
                 print(f"Unexpected server error: {e}")

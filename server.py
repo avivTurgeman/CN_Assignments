@@ -144,7 +144,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
                 print(
                     f"{client_prefix} Sending response of length {len(response)} bytes")
 
-                client_socket.send(bytes(response.encode()))
+                client_socket.send(bytes(response))
 
             except Exception as e:
                 print(f"Unexpected server error: {e}")
