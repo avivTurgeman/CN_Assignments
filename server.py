@@ -87,8 +87,9 @@ def server(host: str, port: int) -> None:
         # SO_REUSEADDR is a socket option that allows the socket to be bound to an address that is already in use.
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        # Prepare the server socket
+        # The server socket will listen to any IP on port 9999
         server_socket.bind(('',9999))
+        # The server socket starts to listen to other clients one at the time
         server_socket.listen(1) 
 
         threads = []
@@ -96,10 +97,9 @@ def server(host: str, port: int) -> None:
 
         while True:
             try:
-                # Establish connection with client.
-                
-                #client_socket will be the tuple[0] socket that the server recieves
-                #The address of the client will be the tuple[1] that the server recieves
+                # Establishing connection with client.
+                # Client_socket will be the tuple[0] socket that the server recieve
+                # The address of the client will be the tuple[1] that the server recieve
                 client_socket, address = server_socket.accept()
 
                 # Create a new thread to handle the client request

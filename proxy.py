@@ -83,8 +83,10 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
         # SO_REUSEADDR is a socket option that allows the socket to be bound to an address that is already in use.
         proxy_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        # Prepare the proxy socket
+        
+        # The proxy socket will listen to any IP on port 9998
         proxy_socket.bind(('',9998))
+        # The proxy socket starts to listen to other clients one at the time
         proxy_socket.listen(1)
 
         threads = []
@@ -92,7 +94,9 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
 
         while True:
             try:
-                # Establish connection with client.
+                # Establishing connection with client.
+                # Client_socket will be the tuple[0] socket that the proxy recieve
+                # The address of the client will be the tuple[1] that the proxy recieve
                 client_socket, client_address = proxy_socket.accept()
 
                 # Create a new thread to handle the client request
