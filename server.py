@@ -125,6 +125,7 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
         print(f"Conection established with {client_addr}")
         while True:
             
+            # Receive data from the client
             data = client_socket.recv(8192)
             if not data:
                 break
