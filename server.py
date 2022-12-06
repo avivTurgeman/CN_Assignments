@@ -88,7 +88,7 @@ def server(host: str, port: int) -> None:
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         # The server socket will listen to any IP on port 9999
-        server_socket.bind(('',9999))
+        server_socket.bind(('',api.DEFAULT_SERVER_PORT))
         # The server socket starts to listen to other clients one at the time
         server_socket.listen(1) 
 

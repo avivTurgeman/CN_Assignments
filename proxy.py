@@ -85,7 +85,7 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
 
         
         # The proxy socket will listen to any IP on port 9998
-        proxy_socket.bind(('',9998))
+        proxy_socket.bind(('',api.DEFAULT_PROXY_PORT))
         # The proxy socket starts to listen to other clients one at the time
         proxy_socket.listen(1)
 
