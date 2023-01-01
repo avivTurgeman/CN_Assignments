@@ -6,5 +6,7 @@ watchdog: watchdog.c
 new_ping: new_ping.c
 	gcc new_ping.c -o partb
 
+.PHONEY: all clean
+
 clean:
 	rm -f *.o parta watchdog partb

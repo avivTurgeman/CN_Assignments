@@ -122,52 +122,10 @@ int main(int argc,char *argv[])
     }
 
     struct icmp icmphdr; // ICMP-header
-    char data[IP_MAXPACKET] = "This is the ping.\n";
+    char data[IP_MAXPACKET] = "This is aviv's & alon's ping test.\n";
 
     int datalen = strlen(data) + 1;
-
-    //===================
-    // ICMP header
-    //===================
-
-    // Message Type (8 bits): ICMP_ECHO_REQUEST
-    icmphdr.icmp_type = ICMP_ECHO;
-
-    // Message Code (8 bits): echo request
-    icmphdr.icmp_code = 0;
-
-    // Identifier (16 bits): some number to trace the response.
-    // It will be copied to the response packet and used to map response to the request sent earlier.
-    // Thus, it serves as a Transaction-ID when we need to make "ping"
-    icmphdr.icmp_id = 18;
-
-    // Sequence Number (16 bits): starts at 0
-    icmphdr.icmp_seq = 0;
-
-    // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
-    icmphdr.icmp_cksum = 0;
-
-    // Combine the packet
-    char packet[IP_MAXPACKET];
-
-    // Next, ICMP header
-    memcpy((packet), &icmphdr, ICMP_HDRLEN);
-
-    // After ICMP header, add the ICMP data.
-    memcpy(packet + ICMP_HDRLEN, data, datalen);
-
-    // Calculate the ICMP header checksum
-    icmphdr.icmp_cksum = calculate_checksum((unsigned short *)(packet), ICMP_HDRLEN + datalen);
-    memcpy((packet), &icmphdr, ICMP_HDRLEN);
-
-    struct sockaddr_in dest_in;
-    memset(&dest_in, 0, sizeof(struct sockaddr_in));
-    dest_in.sin_family = AF_INET;
-
-    // The port is irrelant for Networking and therefore was zeroed.
-    // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
-    dest_in.sin_addr.s_addr = inet_addr(DESTINATION_IP);
-    // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
+     int sequance = 1;
 
     // Create raw socket for IP-RAW (make IP-header by yourself)
     int sock = -1;
@@ -178,12 +136,53 @@ int main(int argc,char *argv[])
         return -1;
     }
 
-    int sequance = 1;
-
-    struct timeval start, end;
-
     while(1){
 
+        //===================
+        // ICMP header
+        //===================
+
+        // Message Type (8 bits): ICMP_ECHO_REQUEST
+        icmphdr.icmp_type = ICMP_ECHO;
+
+        // Message Code (8 bits): echo request
+        icmphdr.icmp_code = 0;
+
+        // Identifier (16 bits): some number to trace the response.
+        // It will be copied to the response packet and used to map response to the request sent earlier.
+        // Thus, it serves as a Transaction-ID when we need to make "ping"
+        icmphdr.icmp_id = 18;
+
+        // Sequence Number (16 bits): starts at 0
+        icmphdr.icmp_seq = 0;
+
+        // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
+        icmphdr.icmp_cksum = 0;
+
+        // Combine the packet
+        char packet[IP_MAXPACKET];
+
+        // Next, ICMP header
+        memcpy((packet), &icmphdr, ICMP_HDRLEN);
+
+        // After ICMP header, add the ICMP data.
+        memcpy(packet + ICMP_HDRLEN, data, datalen);
+
+        // Calculate the ICMP header checksum
+        icmphdr.icmp_cksum = calculate_checksum((unsigned short *)(packet), ICMP_HDRLEN + datalen);
+        memcpy((packet), &icmphdr, ICMP_HDRLEN);
+
+        struct sockaddr_in dest_in;
+        memset(&dest_in, 0, sizeof(struct sockaddr_in));
+        dest_in.sin_family = AF_INET;
+
+        // The port is irrelant for Networking and therefore was zeroed.
+        // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
+        dest_in.sin_addr.s_addr = inet_addr(DESTINATION_IP);
+        // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
+
+        struct timeval start, end;
+        
         gettimeofday(&start, 0);
         // Send the packet using sendto() for sending datagrams.
         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
@@ -193,7 +192,7 @@ int main(int argc,char *argv[])
             return -1;
         }
 
-        float bytes_per_request = 0.0;
+        int bytes_per_request = 0;
 
         // Get the ping response
         bzero(packet, IP_MAXPACKET);
@@ -201,6 +200,7 @@ int main(int argc,char *argv[])
         ssize_t bytes_received = -1;
         while ((bytes_received = recvfrom(sock, packet, sizeof(packet), 0, (struct sockaddr *)&dest_in, &len)))
         {
+            
             if (bytes_received > 0)
             {
                 // Check the IP header
@@ -213,7 +213,7 @@ int main(int argc,char *argv[])
 
                 break;
             }
-        }
+        }        
 
         gettimeofday(&end, 0);
 
@@ -224,8 +224,9 @@ int main(int argc,char *argv[])
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
         unsigned long microseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec);
 
-        printf("%d bytes from %s: icmp_seq=%d time=%f ms\n", (int)bytes_per_request, argv[1], sequance, milliseconds);
+        printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%f ms\n", bytes_per_request, argv[1], sequance, milliseconds);
 
+        sleep(1.4);
         sequance++;
     }
 
