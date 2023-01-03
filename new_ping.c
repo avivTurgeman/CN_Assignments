@@ -52,6 +52,7 @@ unsigned short calculate_checksum(unsigned short *paddress, int len);
 #define WATCHDOG_IP "127.0.0.1"
 //exit message
 #define EXIT_MESSAGE "timeout"
+#define port 3000
 
 
 int isValidIp4 (char *str) {
@@ -156,6 +157,43 @@ int main(int argc,char *argv[])
         return -1;
     }
 
+    //initializing a TCP socket.
+    int TCPsock = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in senderAddress;
+
+    //setting to zero the struct senderAddress
+    memset(&senderAddress, 0, sizeof(senderAddress));
+    senderAddress.sin_family = AF_INET;
+    senderAddress.sin_port = htons(port);
+    int checkP = inet_pton(AF_INET, (const char *) WATCHDOG_IP, &senderAddress.sin_addr);
+    if (checkP <= 0) {
+        printf("inet_pton() failed.\n");
+        return -1;
+    }
+
+    //opening the socket.
+    int Bcheck = bind(TCPsock, (struct sockaddr *) &senderAddress, sizeof(senderAddress));
+    if (Bcheck == -1) {
+        printf("Error while binding.\n");
+        return -1;
+    }
+
+    //start listening on the socket (one client at the time)
+    int Lcheck = listen(TCPsock, 1);
+    if (Lcheck == -1) {
+        printf("Error in listen().\n");
+        return -1;
+    }
+
+    //accepting the client (the Sender)
+    unsigned int senderAddressLen = sizeof(senderAddress);
+    int senderSock = accept(TCPsock, (struct sockaddr *) &senderAddress, &senderAddressLen);
+    if (senderSock == -1) {
+        printf("accept() failed.\n");
+        close(TCPsock);
+        return -1;
+    }
+
     while(1){
 
         //===================
@@ -228,6 +266,7 @@ int main(int argc,char *argv[])
             if (bytes_received > 0)
             {
                 if(strcmp(packet,EXIT_MESSAGE) == 0){
+                    printf("got Exit message!\n");
                     break;
                 }
 
@@ -259,10 +298,10 @@ int main(int argc,char *argv[])
         // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
 
         // Send the packet using sendto() for sending datagrams.
-        int bytes_sent_to_watchdog = sendto(sock, "Got Pong!", ICMP_HDRLEN + 10, 0, (struct sockaddr *)&watchdog_in, sizeof(watchdog_in));
+        int bytes_sent_to_watchdog = send(TCPsock, "Got Pong!",10, 0);
         if (bytes_sent_to_watchdog == -1)
         {
-            fprintf(stderr, "sendto() failed with error: %d", errno);
+            fprintf(stderr, "send() failed with error: %d", errno);
             return -1;
         }
 
