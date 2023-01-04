@@ -58,19 +58,25 @@ int main()
 
     printf("im here\n");
 
+    int byets = 0;
+    int start_time = 0;
     while (timer < 10)
     {
-        printf("(%d)\n", counter);
-        gettimeofday(&start,0);
+        printf("(%f)\n", timer);
+        if(start_time == 0) {
+            gettimeofday(&start, 0);
+            start_time = 1;
+        }
 
-        recv(sock,buffer,BUFFER_SIZE,0);
+        byets = recv(sock,buffer,BUFFER_SIZE,0);
 
         // printf("(%d)\n", counter);
-
-        gettimeofday(&end,0);
-
+        if(byets > 0) {
+            byets = 0;
+            start_time = 0;
+        }
+        gettimeofday(&end, 0);
         timer = (double)(end.tv_sec - start.tv_sec);
-        counter++;
     }
     
     printf("sending timeout\n");

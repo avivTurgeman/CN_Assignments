@@ -145,7 +145,7 @@ int main(int argc,char *argv[])
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is aviv's & alon's ping test.\n";
 
-    int datalen = strlen(data) + 1;
+    int datalen = (int)strlen(data) + 1;
      int sequance = 1;
 
     // Create raw socket for IP-RAW (make IP-header by yourself)
@@ -156,6 +156,7 @@ int main(int argc,char *argv[])
         fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
         return -1;
     }
+    printf("PING: created RAW socket");
 
     //initializing a TCP socket.
     int TCPsock = socket(AF_INET, SOCK_STREAM, 0);
@@ -170,13 +171,15 @@ int main(int argc,char *argv[])
         printf("inet_pton() failed.\n");
         return -1;
     }
-
+    printf("PING: created TCP socket");
     //opening the socket.
     int Bcheck = bind(TCPsock, (struct sockaddr *) &senderAddress, sizeof(senderAddress));
     if (Bcheck == -1) {
         printf("Error while binding.\n");
+        close(TCPsock);
         return -1;
     }
+    printf("PING: bound");
 
     //start listening on the socket (one client at the time)
     int Lcheck = listen(TCPsock, 1);
@@ -184,6 +187,7 @@ int main(int argc,char *argv[])
         printf("Error in listen().\n");
         return -1;
     }
+    printf("PING: started to listen on port %d" , port);
 
     //accepting the client (the Sender)
     unsigned int senderAddressLen = sizeof(senderAddress);
@@ -193,6 +197,7 @@ int main(int argc,char *argv[])
         close(TCPsock);
         return -1;
     }
+    printf("PING: accepted client");
 
     while(1){
 
@@ -262,14 +267,9 @@ int main(int argc,char *argv[])
         ssize_t bytes_received = -1;
         while ((bytes_received = recv(sock, packet, sizeof(packet), 0)))
         {
-            
+
             if (bytes_received > 0)
             {
-                if(strcmp(packet,EXIT_MESSAGE) == 0){
-                    printf("got Exit message!\n");
-                    break;
-                }
-
                 // Check the IP header
                 struct iphdr *iphdr = (struct iphdr *)packet;
                 struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
@@ -277,8 +277,15 @@ int main(int argc,char *argv[])
                 // icmphdr->type
 
                 bytes_per_request += bytes_received;
-
                 break;
+            }
+            int tcp_bites = 0;
+            tcp_bites = recv(TCPsock , packet, sizeof(packet), 0);
+            if(tcp_bites > 0) {
+                if (strcmp(packet, EXIT_MESSAGE) == 0) {
+                    printf("got Exit message!\n");
+                    break;
+                }
             }
         }
         
@@ -288,6 +295,7 @@ int main(int argc,char *argv[])
 
         gettimeofday(&end, 0);
 
+      // ********************************************************************************************
         struct sockaddr_in watchdog_in;
         memset(&watchdog_in, 0, sizeof(struct sockaddr_in));
         watchdog_in.sin_family = AF_INET;
@@ -296,8 +304,9 @@ int main(int argc,char *argv[])
         // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
         watchdog_in.sin_addr.s_addr = inet_addr(WATCHDOG_IP);
         // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
+        //***********************************************************************************************
 
-        // Send the packet using sendto() for sending datagrams.
+        // Send the notification to the watchdog.
         int bytes_sent_to_watchdog = send(TCPsock, "Got Pong!",10, 0);
         if (bytes_sent_to_watchdog == -1)
         {
@@ -321,6 +330,7 @@ int main(int argc,char *argv[])
 
     // Close the raw socket descriptor.
     close(sock);
+    close(TCPsock);
 
     wait(&status); // waiting for child to finish before exiting
     printf("child exit status is: %d", status);
