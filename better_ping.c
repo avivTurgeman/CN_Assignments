@@ -20,7 +20,7 @@
 #define WATCHDOG_IP "127.0.0.1"
 //exit message
 #define EXIT_MESSAGE "timeout"
-#define port 5000
+#define port 3000
 
 // Checksum algo
 unsigned short calculate_checksum(unsigned short *paddress, int len);
@@ -46,7 +46,6 @@ int main(int argc,char *argv[]) {
     int status;
     int pid = fork();
     if (pid == 0) {
-        printf("in child \n");
         execvp(args[0], args);
     }
     struct icmp icmphdr; // ICMP-header
@@ -62,7 +61,7 @@ int main(int argc,char *argv[]) {
         fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
         return -1;
     }
-    printf("PING: created RAW socket");
+
     //initializing a TCP socket.
     int TCPsock = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in senderAddress;
@@ -76,7 +75,6 @@ int main(int argc,char *argv[]) {
         printf("inet_pton() failed.\n");
         return -1;
     }
-    printf("PING: created TCP socket\n");
 
     //opening the socket.
     int Bcheck = bind(TCPsock, (struct sockaddr *) &senderAddress, sizeof(senderAddress));
@@ -85,7 +83,6 @@ int main(int argc,char *argv[]) {
         close(TCPsock);
         return -1;
     }
-    printf("PING: bound\n");
 
     //start listening on the socket (one client at the time)
     int Lcheck = listen(TCPsock, 1);
@@ -93,14 +90,13 @@ int main(int argc,char *argv[]) {
         printf("Error in listen().\n");
         return -1;
     }
-    printf("PING: started to listen on port %d\n" , port);
 
     //accepting the client (the Sender)
     unsigned int senderAddressLen = sizeof(senderAddress);
-    int senderSock = accept(TCPsock, (struct sockaddr *) &senderAddress, &senderAddressLen);
-    if (senderSock == -1) {
+    int newTCPsock = accept(TCPsock, (struct sockaddr *) &senderAddress, &senderAddressLen);
+    if (newTCPsock == -1) {
         printf("accept() failed.\n");
-        close(TCPsock);
+        close(newTCPsock);
         return -1;
     }
     printf("PING: accepted client\n");
@@ -174,10 +170,8 @@ int main(int argc,char *argv[]) {
 
         while(1)
         {
-            //printf("im in loop\n");
-            tcp_bytes = recv(TCPsock , watchdog_buffer, 10, MSG_DONTWAIT);
+            tcp_bytes = recv(newTCPsock , watchdog_buffer, 10, MSG_DONTWAIT);
             if(tcp_bytes > 0) {
-                printf("PING got: %s\n", watchdog_buffer);
                 if (strcmp(packet, EXIT_MESSAGE) == 0) {
                     printf("got Exit message!\n");
                     break;
@@ -187,17 +181,18 @@ int main(int argc,char *argv[]) {
             if (ICMPbytes > 0)
             {
                 // Check the IP header
-                struct iphdr *iphdr = (struct iphdr *)packet;
-                struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
+                //struct iphdr *iphdr = (struct iphdr *)packet;
+                //struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
                 break;
             }
         }
-        if(strcmp(packet,EXIT_MESSAGE) == 0){
+
+        if(strcmp(watchdog_buffer,EXIT_MESSAGE) == 0){
             break;
         }
         gettimeofday(&end, 0);
         // Send the notification to the watchdog.
-        int bytes_sent_to_watchdog = send(TCPsock, "Got Pong!",10, 0);
+        int bytes_sent_to_watchdog = (int) send(newTCPsock, "Got Pong!",sizeof ("Got Pong!"), 0);
         if (bytes_sent_to_watchdog == -1)
         {
             fprintf(stderr, "send() failed with error: %d", errno);
@@ -215,9 +210,9 @@ int main(int argc,char *argv[]) {
     }
     // Close the raw socket descriptor.
     close(sock);
-    close(TCPsock);
+    close(newTCPsock);
     wait(&status); // waiting for child to finish before exiting
-    printf("child exit status is: %d", status);
+    printf("child exit status is: %d \n", status);
     return 0;
 }
 

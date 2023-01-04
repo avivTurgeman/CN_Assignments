@@ -204,8 +204,8 @@ int main(int argc,char *argv[])
             if (bytes_received > 0)
             {
                 // Check the IP header
-                struct iphdr *iphdr = (struct iphdr *)packet;
-                struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
+                //struct iphdr *iphdr = (struct iphdr *)packet;
+                //struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
                 // printf("%ld bytes from %s\n", bytes_received, inet_ntoa(dest_in.sin_addr));
                 // icmphdr->type
 
@@ -251,8 +251,7 @@ unsigned short calculate_checksum(unsigned short *paddress, int len)
         nleft -= 2;
     }
 
-    if (nleft == 1)
-    {
+    if (nleft == 1){
         *((unsigned char *)&answer) = *((unsigned char *)w);
         sum += answer;
     }
@@ -261,6 +260,7 @@ unsigned short calculate_checksum(unsigned short *paddress, int len)
     sum = (sum >> 16) + (sum & 0xffff); // add hi 16 to low 16
     sum += (sum >> 16);                 // add carry
     answer = ~sum;                      // truncate to 16 bits
+
 
     return answer;
 }

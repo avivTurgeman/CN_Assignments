@@ -8,7 +8,7 @@
 
 #define BUFFER_SIZE 10
 #define IP "127.0.0.1"
-#define port 5000
+#define port 3000
 
 int main()
 {
@@ -42,18 +42,13 @@ int main()
 
 
     char buffer[BUFFER_SIZE];
-
     float timer = 0.0;
-    
     struct timeval start, end;
-
-    printf("im here\n");
-
     int byets = 0;
     int start_time = 0;
-    //send(sock,"ok",3,0);
     while (timer < 10)
     {
+            //printf("(%f)\n", timer);
         //printf("(%f)\n", timer);
         if(start_time == 0) {
             gettimeofday(&start, 0);
@@ -75,7 +70,7 @@ int main()
         }
     }
     
-    printf("sending timeout\n");
+    printf("WATCHDOG:sending timeout\n");
     send(sock,"timeout",8,0);
     close(sock);
 
