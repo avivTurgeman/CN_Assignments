@@ -22,9 +22,11 @@
 #define EXIT_MESSAGE "timeout"
 #define port 3000
 
-// Checksum algo
-unsigned short calculate_checksum(unsigned short *paddress, int len);
+//Checks if a given IP is valid
 int isValidIp4 (char *str);
+
+// Checksum algorithm
+unsigned short calculate_checksum(unsigned short *paddress, int len);
 
 int main(int argc,char *argv[]) {
 
@@ -37,7 +39,7 @@ int main(int argc,char *argv[]) {
         return -1;
     }
     char *destenation_ip = argv[1];
-    printf("dest ip is: %s\n", destenation_ip);
+    printf("PING %s (%s) 56 bytes of data.\n", destenation_ip, destenation_ip);
 
     char *args[2];
     // compiled watchdog.c by makefile
@@ -51,8 +53,6 @@ int main(int argc,char *argv[]) {
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is aviv's & alon's ping test.\n";
     int datalen = (int) strlen(data) + 1;
-
-    int sequance = 1;
 
     int sock = -1;
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
@@ -99,6 +99,10 @@ int main(int argc,char *argv[]) {
         close(newTCPsock);
         return -1;
     }
+
+    // Sequence Number (16 bits): starts at 0
+    icmphdr.icmp_seq = 0;
+
     while(1){
         //===================
         // ICMP header
@@ -114,9 +118,6 @@ int main(int argc,char *argv[]) {
         // It will be copied to the response packet and used to map response to the request sent earlier.
         // Thus, it serves as a Transaction-ID when we need to make "ping"
         icmphdr.icmp_id = 18;
-
-        // Sequence Number (16 bits): starts at 0
-        icmphdr.icmp_seq = 0;
 
         // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
         icmphdr.icmp_cksum = 0;
@@ -193,10 +194,10 @@ int main(int argc,char *argv[]) {
         char reply[IP_MAXPACKET];
         memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-        printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%f ms\n", ICMPbytes, argv[1], sequance, milliseconds);
+        printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%.2f ms\n", ICMPbytes, argv[1], icmphdr.icmp_seq, milliseconds);
 
         sleep(1);
-        sequance++;
+        icmphdr.icmp_seq++;    
     }
     // Close the raw socket descriptor.
     close(sock);
@@ -228,7 +229,6 @@ int isValidIp4 (char *str) {
 
             if (chcnt == 0)
                 return 0;
-
             /* Limit number of segments. */
 
             if (++segs == 4)
