@@ -40,7 +40,6 @@ int main()
         return -1;
     }
 
-
     char buffer[BUFFER_SIZE];
     float timer = 0.0;
     struct timeval start, end;
