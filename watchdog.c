@@ -15,7 +15,7 @@
 #define BUFFER_SIZE 10
 #define ICMP_HDRLEN 8
 #define IP "127.0.0.1"
-#define port 3000
+#define port 3001
 
 int main()
 {
@@ -50,8 +50,6 @@ int main()
 
     char buffer[ICMP_HDRLEN + BUFFER_SIZE];
 
-    int counter = 1;
-
     float timer = 0.0;
     
     struct timeval start, end;
@@ -62,7 +60,7 @@ int main()
     int start_time = 0;
     while (timer < 10)
     {
-        printf("(%f)\n", timer);
+        //printf("(%f)\n", timer);
         if(start_time == 0) {
             gettimeofday(&start, 0);
             start_time = 1;
@@ -81,6 +79,7 @@ int main()
     
     printf("sending timeout\n");
     send(sock,"timeout",8,0);
+    close(sock);
 
     return 0;
 }

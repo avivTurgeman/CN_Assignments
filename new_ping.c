@@ -47,12 +47,12 @@ unsigned short calculate_checksum(unsigned short *paddress, int len);
 
 #define SOURCE_IP "10.0.2.15"
 // i.e the gateway or ping to google.com for their ip-address
-#define DESTINATION_IP "8.8.8.8"
+#define DESTINATION_IP "8.8.8.8" // //////////////////////////////////////////////////////// ??? ags[1] and not 8.8.8.8
 // IP of Watchdog
 #define WATCHDOG_IP "127.0.0.1"
 //exit message
 #define EXIT_MESSAGE "timeout"
-#define port 3000
+#define port 3001
 
 
 int isValidIp4 (char *str) {
@@ -141,10 +141,11 @@ int main(int argc,char *argv[])
         printf("in child \n");
         execvp(args[0], args);
     }
+    printf("1");
 
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is aviv's & alon's ping test.\n";
-
+    printf("1");
     int datalen = (int)strlen(data) + 1;
      int sequance = 1;
 
@@ -226,14 +227,14 @@ int main(int argc,char *argv[])
         char packet[IP_MAXPACKET];
 
         // Next, ICMP header
-        memcpy((packet), &icmphdr, ICMP_HDRLEN);
+        memcpy((packet), &icmphdr, ICMP_HDRLEN); // ///////////////////////////////////////////////////////////////////// x2 ?
 
         // After ICMP header, add the ICMP data.
         memcpy(packet + ICMP_HDRLEN, data, datalen);
 
         // Calculate the ICMP header checksum
         icmphdr.icmp_cksum = calculate_checksum((unsigned short *)(packet), ICMP_HDRLEN + datalen);
-        memcpy((packet), &icmphdr, ICMP_HDRLEN);
+        memcpy((packet), &icmphdr, ICMP_HDRLEN); // ///////////////////////////////////////////////////////////////////// x2 ?
 
         struct sockaddr_in dest_in;
         memset(&dest_in, 0, sizeof(struct sockaddr_in));
@@ -256,7 +257,7 @@ int main(int argc,char *argv[])
         }
 
         if(sequance == 10){
-            sleep(12);
+            sleep(11);
         }
 
         int bytes_per_request = 0;
@@ -267,7 +268,7 @@ int main(int argc,char *argv[])
         ssize_t bytes_received = -1;
         while ((bytes_received = recv(sock, packet, sizeof(packet), 0)))
         {
-
+            printf("im in loop");
             if (bytes_received > 0)
             {
                 // Check the IP header
@@ -295,7 +296,7 @@ int main(int argc,char *argv[])
 
         gettimeofday(&end, 0);
 
-      // ********************************************************************************************
+      // ******************************************************************************************** needed ?????????????????????????
         struct sockaddr_in watchdog_in;
         memset(&watchdog_in, 0, sizeof(struct sockaddr_in));
         watchdog_in.sin_family = AF_INET;
@@ -304,7 +305,7 @@ int main(int argc,char *argv[])
         // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
         watchdog_in.sin_addr.s_addr = inet_addr(WATCHDOG_IP);
         // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
-        //***********************************************************************************************
+        //*********************************************************************************************** needed ?????????????????????????
 
         // Send the notification to the watchdog.
         int bytes_sent_to_watchdog = send(TCPsock, "Got Pong!",10, 0);
@@ -319,7 +320,7 @@ int main(int argc,char *argv[])
         // printf("ICMP reply: %s \n", reply);
 
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-        unsigned long microseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec);
+        //unsigned long microseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec);
 
         printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%f ms\n", bytes_per_request, argv[1], sequance, milliseconds);
 
