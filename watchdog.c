@@ -1,21 +1,14 @@
 #include <arpa/inet.h>
-#include <errno.h>
 #include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/ip_icmp.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/time.h> // gettimeofday()
-#include <sys/types.h>
-#include <arpa/inet.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #define BUFFER_SIZE 10
-#define ICMP_HDRLEN 8
 #define IP "127.0.0.1"
-#define port 3001
+#define port 5000
 
 int main()
 {
@@ -48,7 +41,7 @@ int main()
     }
 
 
-    char buffer[ICMP_HDRLEN + BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
     float timer = 0.0;
     
@@ -58,6 +51,7 @@ int main()
 
     int byets = 0;
     int start_time = 0;
+    //send(sock,"ok",3,0);
     while (timer < 10)
     {
         //printf("(%f)\n", timer);
@@ -66,15 +60,19 @@ int main()
             start_time = 1;
         }
 
-        byets = recv(sock,buffer,BUFFER_SIZE,0);
+        byets = recv(sock,buffer,BUFFER_SIZE,MSG_DONTWAIT);
 
         // printf("(%d)\n", counter);
         if(byets > 0) {
             byets = 0;
             start_time = 0;
+            timer = 0.0;
+            //send(sock,"ok",8,0);
         }
-        gettimeofday(&end, 0);
-        timer = (double)(end.tv_sec - start.tv_sec);
+        else {
+            gettimeofday(&end, 0);
+            timer = (double) (end.tv_sec - start.tv_sec);
+        }
     }
     
     printf("sending timeout\n");

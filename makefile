@@ -1,19 +1,16 @@
-all: ping watchdog new_ping
+all: parta watchdog partb
 parta: ping.o
 	gcc ping.o -o parta
 watchdog: watchdog.o
 	gcc watchdog.o -o watchdog
-partb: new_ping.o
-	gcc new_ping.o -o partb
-
+partb: better_ping.o
+	gcc better_ping.o -o partb
 ping.o: ping.c
 	gcc -Wall -c ping.c -o ping.o
-
 watchdog.o: watchdog.c
 	gcc -Wall -c watchdog.c -o watchdog.o
-
-new_ping.o: new_ping.c
-	gcc -Wall -c new_ping.c -o new_ping.o
+better_ping.o: better_ping.c
+	gcc -Wall -c better_ping.c -o better_ping.o
 .PHONEY: all clean
 
 clean:
