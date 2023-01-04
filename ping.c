@@ -131,7 +131,7 @@ int main(int argc,char *argv[])
     int sock = -1;
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
-        fprintf(stderr, "socket() failed with error: %d", errno);
+        fprintf(stderr, "socket() failed with error: %d\n", errno);
         fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
         return -1;
     }
@@ -188,11 +188,9 @@ int main(int argc,char *argv[])
         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
         if (bytes_sent == -1)
         {
-            fprintf(stderr, "sendto() failed with error: %d", errno);
+            fprintf(stderr, "sendto() failed with error: %d\n", errno);
             return -1;
         }
-
-        int bytes_per_request = 0;
 
         // Get the ping response
         bzero(packet, IP_MAXPACKET);
@@ -203,14 +201,6 @@ int main(int argc,char *argv[])
             
             if (bytes_received > 0)
             {
-                // Check the IP header
-                //struct iphdr *iphdr = (struct iphdr *)packet;
-                //struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
-                // printf("%ld bytes from %s\n", bytes_received, inet_ntoa(dest_in.sin_addr));
-                // icmphdr->type
-
-                bytes_per_request += bytes_received;
-
                 break;
             }
         }        
@@ -219,11 +209,10 @@ int main(int argc,char *argv[])
 
         char reply[IP_MAXPACKET];
         memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
-        // printf("ICMP reply: %s \n", reply);
 
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
 
-        printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%f ms\n", bytes_per_request, argv[1], sequance, milliseconds);
+        printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%f ms\n", (int)bytes_received, argv[1], sequance, milliseconds);
 
         sleep(1);
         sequance++;

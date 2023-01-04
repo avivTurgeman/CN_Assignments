@@ -57,7 +57,7 @@ int main(int argc,char *argv[]) {
     int sock = -1;
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
-        fprintf(stderr, "socket() failed with error: %d", errno);
+        fprintf(stderr, "socket() failed with error: %d\n", errno);
         fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
         return -1;
     }
@@ -79,7 +79,7 @@ int main(int argc,char *argv[]) {
     //opening the socket.
     int Bcheck = bind(TCPsock, (struct sockaddr *) &senderAddress, sizeof(senderAddress));
     if (Bcheck == -1) {
-        fprintf(stderr, "bind failed: %d", errno);
+        fprintf(stderr, "bind failed: %d\n", errno);
         close(TCPsock);
         return -1;
     }
@@ -149,7 +149,7 @@ int main(int argc,char *argv[]) {
         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
         if (bytes_sent == -1)
         {
-            fprintf(stderr, "sendto() failed with error: %d", errno);
+            fprintf(stderr, "sendto() failed with error: %d\n", errno);
             return -1;
         }
 
@@ -173,9 +173,6 @@ int main(int argc,char *argv[]) {
             ICMPbytes = (int) recvfrom(sock, packet, sizeof(packet), MSG_DONTWAIT, (struct sockaddr *)&dest_in, &len);
             if (ICMPbytes > 0)
             {
-                // Check the IP header
-                //struct iphdr *iphdr = (struct iphdr *)packet;
-                //struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
                 break;
             }
         }
@@ -188,7 +185,7 @@ int main(int argc,char *argv[]) {
         int bytes_sent_to_watchdog = (int) send(newTCPsock, "Got Pong!",sizeof ("Got Pong!"), 0);
         if (bytes_sent_to_watchdog == -1)
         {
-            fprintf(stderr, "send() failed with error: %d", errno);
+            fprintf(stderr, "send() failed with error: %d\n", errno);
             return -1;
         }
 
