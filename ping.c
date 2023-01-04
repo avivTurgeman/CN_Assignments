@@ -222,11 +222,10 @@ int main(int argc,char *argv[])
         // printf("ICMP reply: %s \n", reply);
 
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-        unsigned long microseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec);
 
         printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%f ms\n", bytes_per_request, argv[1], sequance, milliseconds);
 
-        sleep(1.4);
+        sleep(1);
         sequance++;
     }
 

@@ -99,10 +99,7 @@ int main(int argc,char *argv[]) {
         close(newTCPsock);
         return -1;
     }
-    printf("PING: accepted client\n");
-
     while(1){
-        //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         //===================
         // ICMP header
         //===================
@@ -146,7 +143,6 @@ int main(int argc,char *argv[]) {
         dest_in.sin_addr.s_addr = inet_addr(destenation_ip);
         // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         struct timeval start, end;
         gettimeofday(&start, 0);
         // Send the ping using sendto() for sending datagrams.
@@ -157,9 +153,6 @@ int main(int argc,char *argv[]) {
             return -1;
         }
 
-        if(sequance == 10){
-            sleep(11);
-        }
         int ICMPbytes = -1;
 
         // Get the ping response
