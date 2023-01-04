@@ -166,8 +166,7 @@ int main(int argc,char *argv[]) {
         {
             tcp_bytes = recv(newTCPsock , watchdog_buffer, 10, MSG_DONTWAIT);
             if(tcp_bytes > 0) {
-                if (strcmp(packet, EXIT_MESSAGE) == 0) {
-                    printf("got Exit message!\n");
+                if (strcmp(watchdog_buffer, EXIT_MESSAGE) == 0) {
                     break;
                 }
             }
@@ -197,6 +196,9 @@ int main(int argc,char *argv[]) {
         printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%.2f ms\n", ICMPbytes, argv[1], icmphdr.icmp_seq, milliseconds);
 
         sleep(1);
+	//if(icmphdr.icmp_seq == 10){
+	//	sleep(11);
+	//}
         icmphdr.icmp_seq++;    
     }
     // Close the raw socket descriptor.
