@@ -156,7 +156,7 @@ int main(int argc,char *argv[])
 
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
 
-        printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%.2f ms\n", (int)bytes_received, argv[1], icmphdr.icmp_seq, milliseconds);
+        printf("%d bytes from %s: icmp_seq=%d time=%.2f ms\n", (int)bytes_received, argv[1], icmphdr.icmp_seq, milliseconds);
 
         sleep(1);
         icmphdr.icmp_seq++;

@@ -12,7 +12,6 @@
 
 int main()
 {
-    // Create raw socket for IP-RAW (make IP-header by yourself)
     //initializing a TCP socket.
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1) {
@@ -47,8 +46,6 @@ int main()
     int start_time = 0;
     while (timer < 10)
     {
-            //printf("(%f)\n", timer);
-        //printf("(%f)\n", timer);
         if(start_time == 0) {
             gettimeofday(&start, 0);
             start_time = 1;
@@ -56,12 +53,10 @@ int main()
 
         byets = recv(sock,buffer,BUFFER_SIZE,MSG_DONTWAIT);
 
-        // printf("(%d)\n", counter);
         if(byets > 0) {
             byets = 0;
             start_time = 0;
             timer = 0.0;
-            //send(sock,"ok",8,0);
         }
         else {
             gettimeofday(&end, 0);
