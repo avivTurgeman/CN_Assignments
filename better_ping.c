@@ -154,6 +154,10 @@ int main(int argc,char *argv[]) {
             return -1;
         }
 
+        // if(icmphdr.icmp_seq == 2){
+        //     sleep(11);
+        // }
+
         int ICMPbytes = -1;
 
         // Get the ping response
@@ -196,9 +200,6 @@ int main(int argc,char *argv[]) {
         printf("%d bytes from %s: icmp_seq=%d ttl=10 time=%.2f ms\n", ICMPbytes, argv[1], icmphdr.icmp_seq, milliseconds);
 
         sleep(1);
-	//if(icmphdr.icmp_seq == 10){
-	//	sleep(11);
-	//}
         icmphdr.icmp_seq++;    
     }
     // Close the raw socket descriptor.
